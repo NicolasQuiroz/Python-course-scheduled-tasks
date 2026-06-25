@@ -11,8 +11,8 @@ import datetime as dt
 import random
 import smtplib
 
-MI_CORREO= os.environ.get("MI_CORREO")
-PASSWORD= os.environ.get("PASSWORD")
+MI_CORREO= os.environ.get("MY_EMAIL")
+PASSWORD= os.environ.get("MY_PASSWORD")
 
 date_today=dt.datetime.now()
 
