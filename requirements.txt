@@ -1,6 +1,3 @@
 pandas
 requests
-os
-datetime
-random
-smtplib
+
