@@ -5,34 +5,38 @@
 # 4. Update birthdays.csv to contain today's month and day.
 # See the solution video in the 100 Days of Python Course for explainations.
 
-
-from datetime import datetime
-import pandas
+import pandas as pd
+import os
+import datetime as dt
 import random
 import smtplib
-import os
 
-# import os and use it to get the Github repository secrets
-MY_EMAIL = os.environ.get("MY_EMAIL")
-MY_PASSWORD = os.environ.get("MY_PASSWORD")
+MI_CORREO= os.environ.get("MI_CORREO")
+PASSWORD= os.environ.get("PASSWORD")
 
-today = datetime.now()
-today_tuple = (today.month, today.day)
+date_today=dt.datetime.now()
 
-data = pandas.read_csv("birthdays.csv")
-birthdays_dict = {(data_row["month"], data_row["day"])                  : data_row for (index, data_row) in data.iterrows()}
-if today_tuple in birthdays_dict:
-    birthday_person = birthdays_dict[today_tuple]
-    file_path = f"letter_templates/letter_{random.randint(1, 3)}.txt"
-    with open(file_path) as letter_file:
-        contents = letter_file.read()
-        contents = contents.replace("[NAME]", birthday_person["name"])
+# 1. Update the birthdays.csv
 
-    with smtplib.SMTP("YOUR EMAIL PROVIDER SMTP SERVER ADDRESS") as connection:
+# 2. Check if today matches a birthday in the birthdays.csv
+
+def crear_mensaje(nombre):
+    numero=random.randint(1,3)
+    with open(f"letter_templates/letter_{numero}.txt") as f:
+        contenido=f.read()
+        mensaje=contenido.replace("[NAME]",nombre)
+        return mensaje
+
+def mandar_mensaje(nombre,correo):
+    with smtplib.SMTP("smtp.gmail.com") as connection:
         connection.starttls()
-        connection.login(MY_EMAIL, MY_PASSWORD)
-        connection.sendmail(
-            from_addr=MY_EMAIL,
-            to_addrs=birthday_person["email"],
-            msg=f"Subject:Happy Birthday!\n\n{contents}"
-        )
+        connection.login(user=MI_CORREO, password=PASSWORD)
+        msg = f"Subject:Feliz cumpleaños\n\n{crear_mensaje(nombre)}".encode("utf-8")
+        connection.sendmail(from_addr=MI_CORREO, to_addrs=correo, msg=msg)
+
+df=pd.read_csv("birthdays.csv")
+
+for index,row in df.iterrows():
+    if row["month"]==date_today.month and row["day"]==date_today.day:
+        mandar_mensaje(row["name"],row["email"])
+        print("correo enviado")
